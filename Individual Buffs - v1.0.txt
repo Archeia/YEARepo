@@ -1,0 +1,259 @@
+=begin
+#==============================================================================
+* Individual Buffs - v1.0
+  Author: Quack
+  Date: 19/11/2012
+#==============================================================================
+What it does:
+It makes each buff stack have it's individual timer so applying a new stack of
+a stat won't refresh the time on the old ones (so you can't stay at max stacks
+as you wish). It also makes it so that applying a debuff which lasts 1 turn
+does not potentialy remove a buff stack with 20 turns duration left.
+Instead you get both a positive stack and a negative stack. So for one turn they
+will negate each other, but after that turn the 1 turn debuff goes away and you
+have 19 turns of the positive stack left.
+
+Each stat has a number of slots for buff stacks to be placed in which is shared
+by buffs and debuffs.
+So you generally want to set MAX_BUFF_SLOTS to a number a bit higher than the
+number of positive and negative stacks of a stat you ever think you'll have on
+someone. (Because if the slots are maxed out and a new buff/debuff is added, it
+will just be ignored).
+Another thing to take notice of is MAX_BONUS and MAX_PENALTY. These two
+constants define the maximum bonus or penalty effect you can get from buffs.
+Instructions/Install notes:
+Just paste under Materials liky you would most scripts.
+If you are using Yanfly's Buff&State Manager, be sure to place this script
+below that (if you have enabled to draw turns left on state and buff icons it
+will draw the effect of the buff instead of the amount of turns left).
+Terms of Use:
+Use it however you wish, but do give credit if you do.
+Bugs:
+None I've found so far.
+=end
+#==============================================================================
+# * Settings Start
+#==============================================================================
+module QUACK
+  module BUFFS
+        MAX_BUFF_SLOTS = 50
+        MAX_BONUS = 20
+        MAX_PENALTY = -20
+  
+        #Effect parameters:
+        #(edit these to change how great a bonus/penalty you get to a stat from buffs)
+        RATE_PER_STACK =
+        [
+        0.05, #mhp
+        0.05, #mmp
+        0.05, #atk
+        0.05, #def
+        0.05, #mat
+        0.05, #mdf
+        0.05, #agi
+        0.05, #luk
+        ]
+  end
+end
+#==============================================================================
+# * Settings End
+#==============================================================================
+class Game_BattlerBase
+
+  def buff_effect(param_id)
+        return @buffs[param_id] * param_buff_rate(param_id)
+  end
+  def clear_buffs
+        @buffs = Array.new(8) { 0 } # this is the Stacks int
+        @buff_values = Array.new(8) { Array.new(QUACK::BUFFS::MAX_BUFF_SLOTS) { 0 } } #this tells if this buff slot is unused, a buff or a debuff
+        @buff_turns = Array.new(8) { Array.new(QUACK::BUFFS::MAX_BUFF_SLOTS) { 0 } } #this tells the amount of turns left for a slot
+  end
+
+  def param_buff_rate(param_id)
+        if @buffs[param_id] == 0; return 1.0; end
+        return 1.0 + @buffs[param_id] * QUACK::BUFFS::RATE_PER_STACK[param_id]
+  end
+end
+class Game_Battler < Game_BattlerBase
+
+  #################################
+  # THE IMPORTANT ONES
+  #################################
+
+  def add_buff(param_id, turns)
+        return unless alive?
+        if $imported["YEA-BattleEngine"]; make_buff_popup(param_id, true); end
+        for x in (0..(QUACK::BUFFS::MAX_BUFF_SLOTS-1))
+          if @buff_values[param_id][x] == 0
+                @buff_values[param_id][x] = 1
+                @buff_turns[param_id][x] = turns
+                @buffs[param_id] += 1
+                @result.added_buffs.push(param_id).uniq!
+                refresh
+                return
+          end
+        end
+  end
+
+  def add_debuff(param_id, turns)
+        return unless alive?
+        if $imported["YEA-BattleEngine"]; make_buff_popup(param_id, false); end
+        for x in (0..(QUACK::BUFFS::MAX_BUFF_SLOTS-1))
+          if @buff_values[param_id][x] == 0
+                @buff_values[param_id][x] = -1
+                @buff_turns[param_id][x] = turns
+                @buffs[param_id] -= 1
+                @result.added_debuffs.push(param_id).uniq!
+                refresh
+                return
+          end
+        end
+  end
+
+  def update_buff_turns
+        for x in (0..7)
+          @buffs[x] = 0
+          for y in (0..(QUACK::BUFFS::MAX_BUFF_SLOTS-1))
+                if @buff_values[x][y] != 0
+                  @buff_turns[x][y] -= 1
+                  if @buff_turns[x][y] <= 0
+                        @buff_values[x][y] = 0
+                  else
+                        @buffs[x] += @buff_values[x][y]
+                  end
+                end
+          end
+          if @buffs[x] < QUACK::BUFFS::MAX_PENALTY; @buffs[x] = QUACK::BUFFS::MAX_PENALTY; end
+          if @buffs[x] > QUACK::BUFFS::MAX_BONUS; @buffs[x] = QUACK::BUFFS::MAX_BONUS; end
+        end
+  end
+
+  def erase_buff(param_id)
+        @buffs[param_id] = 0
+  
+        for y in (0..(QUACK::BUFFS::MAX_BUFF_SLOTS-1))
+                @buff_values[param_id][y] = 0
+                @buff_turns[param_id][y] = 0
+          end
+  end
+
+  def remove_all_buffs
+        for x in (0..7)
+          @buffs[x] = 0
+          for y in (0..(QUACK::BUFFS::MAX_BUFF_SLOTS-1))
+                @buff_values[x][y] = 0
+                @buff_turns[x][y] = 0
+          end
+        end
+  end
+
+  #################################
+  # just some stuff I used for debugging
+  #################################
+
+  def remove_buff(param_id, turns)
+        this_shouldnt_happen_prolly_script_conflict
+  end
+
+  def remove_debuff(param_id, turns)
+        this_shouldnt_happen_prolly_script_conflict
+  end
+
+  def overwrite_buff_turns(param_id, turns)
+        this_shouldnt_happen_prolly_script_conflict
+  end
+
+  def remove_buffs_auto
+  
+  end
+
+  # new method I added for an ability I wanted to make
+  def flip_x_buffs(num = 1, positive = true)
+        for x in (0..7)
+          for y in (0..(QUACK::BUFFS::MAX_BUFF_SLOTS-1))
+                if positive
+                  if @buff_values[x][y] == -1
+                        @buff_values[x][y] = 1
+                        num -= 1
+                        @buffs[x] += 2
+                  end
+                else
+                  if @buff_values[x][y] == 1
+                        @buff_values[x][y] = -1
+                        num -= 1
+                        @buffs[x] -= 2
+                  end
+                end
+                return unless num > 0
+          end
+        end
+  end
+
+end
+
+class Game_BattlerBase
+  def buff_icon_index(buff_level, param_id)
+        if buff_level > 0
+          return ICON_BUFF_START + param_id
+        elsif buff_level < 0
+          return ICON_DEBUFF_START + param_id
+        else
+          return 0
+        end
+  end
+end
+if $imported["YEA-Buff&StateManager"]
+class Window_Base < Window
+  #--------------------------------------------------------------------------
+  # overwrite method: draw_actor_icon_turns
+  #--------------------------------------------------------------------------
+  def draw_actor_icon_turns(actor, dx, dy, dw)
+        return unless YEA::BUFF_STATE_MANAGER::SHOW_REMAINING_TURNS
+        return unless SceneManager.scene_is?(Scene_Battle)
+        reset_font_settings
+        contents.font.out_color.alpha = 255
+        contents.font.bold = true
+        contents.font.size = YEA::BUFF_STATE_MANAGER::TURNS_REMAINING_SIZE
+        bx = dx
+        dy += YEA::BUFF_STATE_MANAGER::TURNS_REMAINING_Y
+        #---
+        for state in actor.states
+          break if dx + 24 >= dw + bx
+          next if state.icon_index <= 0
+          turns = actor.state_turns(state.id).to_i
+          if $imported["YEA-FieldStateEffects"] &&
+          BattleManager.field_state?(state.id)
+                turns = BattleManager.field_state_turns(state.id)
+          end
+          if state.auto_removal_timing > 0 && turns < 100
+                draw_text(dx, dy, 24, line_height, turns, 2)
+          end
+          dx += 24
+        end
+        #---
+        for i in 0...8
+          break if dx + 24 >= dw + bx
+          next if actor.buff_icon_index(actor.buff_level(i), i) == 0
+          if actor.buff_effect(i) > 0
+                contents.font.color.red = 50
+                contents.font.color.blue = 50
+                contents.font.color.green = 255
+                contents.font.bold = false
+                val = ((actor.param_buff_rate(i) + 0.0001) * 100 - 100)
+                draw_text(dx, dy, 24, line_height, val.to_i.to_s + "%", 2)
+          else
+                contents.font.color.red = 255
+                contents.font.color.blue = 50
+                contents.font.color.green = 50
+                contents.font.bold = false
+                val = (100 - (actor.param_buff_rate(i) - 0.0001) * 100)
+                draw_text(dx, dy, 24, line_height, val.to_i.to_s + "%", 2)
+          end
+          dx += 24
+        end
+        #---
+        contents.font.out_color = Font.default_out_color
+        reset_font_settings
+  end
+end
+end # $imported["YEA-Buff&StateManager"]

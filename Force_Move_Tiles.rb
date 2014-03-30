@@ -1,0 +1,244 @@
+﻿#==============================================================================
+# 
+# ▼ Yanfly Engine Ace - Force Move Tiles v1.00
+# -- Last Updated: 2011.12.06
+# -- Level: Normal
+# -- Requires: n/a
+# 
+#==============================================================================
+
+$imported = {} if $imported.nil?
+$imported["YEA-ForceMoveTiles"] = true
+
+#==============================================================================
+# ▼ Updates
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2011.12.06 - Started Script and Finished.
+# 
+#==============================================================================
+# ▼ Introduction
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# This script allows certain tiles to force the player to move in one direction
+# and continuing moving in that direction until the player is off of those
+# specific tiles. Similar to conveyor belts or gravity tiles (from games like
+# Chip's Challenge), these tiles only move the player in one direction.
+# 
+#==============================================================================
+# ▼ Instructions
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# To install this script, open up your script editor and copy/paste this script
+# to an open slot below ▼ Materials/素材 but above ▼ Main. Remember to save.
+# 
+# -----------------------------------------------------------------------------
+# Tileset Notetags - These notetags go in the tileset notebox in the database.
+# -----------------------------------------------------------------------------
+# <force up: x>
+# <force up: x, x>
+# <force down: x>
+# <force down: x, x>
+# <force left: x>
+# <force left: x, x>
+# <force right: x>
+# <force right: x, x>
+# By marking specific terrain tags with x and using these notetags, you can
+# have a tile specifically move the player in that direction until the player
+# is off of a force move tile or until the player hits an object.
+# 
+#==============================================================================
+# ▼ Compatibility
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# This script is made strictly for RPG Maker VX Ace. It is highly unlikely that
+# it will run with RPG Maker VX without adjusting.
+# 
+#==============================================================================
+# ▼ Editting anything past this point may potentially result in causing
+# computer damage, incontinence, explosion of user's head, coma, death, and/or
+# halitosis so edit at your own risk.
+#==============================================================================
+
+module YEA
+  module REGEXP
+  module TILESET
+    
+    FORCE_UP    = /<(?:FORCE_UP|force up):[ ]*(\d+(?:\s*,\s*\d+)*)>/i
+    FORCE_DOWN  = /<(?:FORCE_DOWN|force down):[ ]*(\d+(?:\s*,\s*\d+)*)>/i
+    FORCE_LEFT  = /<(?:FORCE_LEFT|force left):[ ]*(\d+(?:\s*,\s*\d+)*)>/i
+    FORCE_RIGHT = /<(?:FORCE_RIGHT|force right):[ ]*(\d+(?:\s*,\s*\d+)*)>/i
+    
+  end # TILESET
+  end # REGEXP
+end # YEA
+
+#==============================================================================
+# ■ DataManager
+#==============================================================================
+
+module DataManager
+  
+  #--------------------------------------------------------------------------
+  # alias method: load_database
+  #--------------------------------------------------------------------------
+  class <<self; alias load_database_fmt load_database; end
+  def self.load_database
+    load_database_fmt
+    load_notetags_fmt
+  end
+  
+  #--------------------------------------------------------------------------
+  # new method: load_notetags_fmt
+  #--------------------------------------------------------------------------
+  def self.load_notetags_fmt
+    groups = [$data_tilesets]
+    for group in groups
+      for obj in group
+        next if obj.nil?
+        obj.load_notetags_fmt
+      end
+    end
+  end
+  
+end # DataManager
+
+#==============================================================================
+# ■ RPG::Tileset
+#==============================================================================
+
+class RPG::Tileset
+  
+  #--------------------------------------------------------------------------
+  # public instance variables
+  #--------------------------------------------------------------------------
+  attr_accessor :force_up
+  attr_accessor :force_down
+  attr_accessor :force_left
+  attr_accessor :force_right
+  
+  #--------------------------------------------------------------------------
+  # common cache: load_notetags_fmt
+  #--------------------------------------------------------------------------
+  def load_notetags_fmt
+    @force_up = []
+    @force_down = []
+    @force_left = []
+    @force_right = []
+    #---
+    self.note.split(/[\r\n]+/).each { |line|
+      case line
+      #---
+      when YEA::REGEXP::TILESET::FORCE_UP
+        $1.scan(/\d+/).each { |num| 
+        @force_up.push(num.to_i) if num.to_i > 0 }
+      when YEA::REGEXP::TILESET::FORCE_DOWN
+        $1.scan(/\d+/).each { |num| 
+        @force_down.push(num.to_i) if num.to_i > 0 }
+      when YEA::REGEXP::TILESET::FORCE_LEFT
+        $1.scan(/\d+/).each { |num| 
+        @force_left.push(num.to_i) if num.to_i > 0 }
+      when YEA::REGEXP::TILESET::FORCE_RIGHT
+        $1.scan(/\d+/).each { |num| 
+        @force_right.push(num.to_i) if num.to_i > 0 }
+      #---
+      end
+    } # self.note.split
+    #---
+  end
+  
+end # RPG::Tileset
+
+#==============================================================================
+# ■ Game_Map
+#==============================================================================
+
+class Game_Map
+  
+  #--------------------------------------------------------------------------
+  # new method: force_move_tile?
+  #--------------------------------------------------------------------------
+  def force_move_tile?(dx, dy)
+    return (valid?(dx, dy) && force_move_tag?(dx, dy))
+  end
+  
+  #--------------------------------------------------------------------------
+  # new method: force_move_tag?
+  #--------------------------------------------------------------------------
+  def force_move_tag?(dx, dy)
+    return true if tileset.force_up.include?(terrain_tag(dx, dy))
+    return true if tileset.force_down.include?(terrain_tag(dx, dy))
+    return true if tileset.force_left.include?(terrain_tag(dx, dy))
+    return true if tileset.force_right.include?(terrain_tag(dx, dy))
+    return false
+  end
+  
+  #--------------------------------------------------------------------------
+  # new method: force_move_direction
+  #--------------------------------------------------------------------------
+  def force_move_direction(dx, dy)
+    return 8 if tileset.force_up.include?(terrain_tag(dx, dy))
+    return 2 if tileset.force_down.include?(terrain_tag(dx, dy))
+    return 4 if tileset.force_left.include?(terrain_tag(dx, dy))
+    return 6 if tileset.force_right.include?(terrain_tag(dx, dy))
+  end
+  
+end # Game_Map
+
+#==============================================================================
+# ■ Game_CharacterBase
+#==============================================================================
+
+class Game_CharacterBase
+  
+  #--------------------------------------------------------------------------
+  # new method: on_force_move_tile?
+  #--------------------------------------------------------------------------
+  def on_force_move_tile?; $game_map.force_move_tile?(@x, @y); end
+  
+end # Game_CharacterBase
+
+#==============================================================================
+# ■ Game_Player
+#==============================================================================
+
+class Game_Player < Game_Character
+  
+  #--------------------------------------------------------------------------
+  # alias method: dash?
+  #--------------------------------------------------------------------------
+  alias game_player_dash_fmt dash?
+  def dash?
+    return false if on_force_move_tile?
+    return game_player_dash_fmt
+  end
+  
+  #--------------------------------------------------------------------------
+  # alias method: update
+  #--------------------------------------------------------------------------
+  alias game_player_update_fmt update
+  def update
+    game_player_update_fmt
+    update_force_move_tile
+  end
+  
+  #--------------------------------------------------------------------------
+  # new method: update_force_move_tile
+  #--------------------------------------------------------------------------
+  def update_force_move_tile
+    return if $game_map.interpreter.running?
+    return unless on_force_move_tile?
+    return if moving?
+    move_forced_direction
+  end
+  
+  #--------------------------------------------------------------------------
+  # new method: move_forced_direction
+  #--------------------------------------------------------------------------
+  def move_forced_direction
+    move_straight($game_map.force_move_direction(@x, @y))
+  end
+  
+end # Game_Player
+
+#==============================================================================
+# 
+# ▼ End of File
+# 
+#==============================================================================

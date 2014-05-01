@@ -1,7 +1,7 @@
 ﻿#==============================================================================
 # 
 # ▼ Yanfly Engine Ace - Ace Equip Engine v1.06
-# -- Last Updated: 2012.02.02
+# -- Last Updated: 2014.05.01
 # -- Level: Normal, Hard
 # -- Requires: n/a
 # 
@@ -13,6 +13,7 @@ $imported["YEA-AceEquipEngine"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2014.05.01 - Bug Fixed: Refresh Equip Item List when change slot.
 # 2012.02.02 - Bug Fixed: Crash when changing classes to different equip slots.
 # 2012.01.22 - Bug Fixed: <equip slot> notetags updated to factor in spaces.
 # 2012.01.05 - Compatibility Update: Equip Dynamic Stats
@@ -1031,6 +1032,7 @@ class Window_EquipItem < Window_ItemList
     @slot_id = slot_id
     @last_item = nil
     self.oy = 0
+    refresh
   end
   
   #--------------------------------------------------------------------------

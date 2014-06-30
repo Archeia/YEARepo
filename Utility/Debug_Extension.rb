@@ -473,7 +473,7 @@ class Scene_Base
           eval(code)
           Sound.play_ok
           break
-        rescue
+        rescue Exception => ex
           Sound.play_buzzer
         end
       end

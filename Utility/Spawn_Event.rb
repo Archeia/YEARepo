@@ -76,6 +76,7 @@ class Game_Map
     event = generated_event(map, event_id)
     return if event.nil?
     key_id = @events.keys.max || -1 + 1
+    event = clone_event(event, key_id)
     @events[key_id] = Game_Event.new(@map_id, event)
     @events[key_id].moveto(dx, dy)
     SceneManager.scene.spriteset.refresh_characters
@@ -116,6 +117,14 @@ class Game_Map
       end
     end
     return tiles.sample
+  end
+  
+  private
+  
+  def clone_event(event, id)	
+	  cloned_event = Marshal.load(Marshal.dump(event))
+	  cloned_event.id = id
+	  return cloned_event
   end
   
 end # Game_Map

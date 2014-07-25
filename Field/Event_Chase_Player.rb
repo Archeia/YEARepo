@@ -1,4 +1,4 @@
-﻿#==============================================================================
+#==============================================================================
 # 
 # ▼ Yanfly Engine Ace - Event Chase Player v1.00
 # -- Last Updated: 2012.01.05
@@ -51,6 +51,9 @@ $imported["YEA-EventChasePlayer"] = true
 # @alert_balloon = x
 # Event will show ballon ID x when chasing or fleeing.
 # 
+# @alert_sound = x
+# Event will play this sound upon sighting the player 
+#
 # @see_player = true
 # For events that require them to see the player first, use this script call
 # inside the movement boxes. This does not follow line of sight rules, which
@@ -114,7 +117,7 @@ class Game_Event < Game_Character
     else
       game_event_update_self_movement_ecp
     end
-    update_alert_balloon
+    update_alert_balloon	
   end
   
   #--------------------------------------------------------------------------
@@ -196,6 +199,7 @@ class Game_Event < Game_Character
       @balloon_id = @alert_balloon
       @alert_player = true
       @alert_timer = YEA::EVENT_CHASE::ALERT_TIMER
+	  RPG::SE.new(@alert_sound, 100, 100).play unless @alert_sound.nil?
     end
     @alert_timer -= 1 if @alert_player
   end

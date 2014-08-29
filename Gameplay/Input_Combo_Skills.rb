@@ -13,6 +13,8 @@ $imported["YEA-InputComboSkills"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2014.08.29 - Bug Fix: Battle doesn't end if all side is dead and you still have
+#              to input commands.
 # 2011.12.26 - Bug Fix: Crash when no action is performed.
 # 2011.12.22 - Started Script and Finished.
 # 
@@ -668,6 +670,9 @@ class Scene_Battle < Scene_Base
   # new method: break_input_combo?
   #--------------------------------------------------------------------------
   def break_input_combo?(item)
+    # This part is added in this fix to break input combo if at least 1 side is all dead
+    return true if $game_party.all_dead? || $game_troop.all_dead?
+    #
     return true if @break_combo
     return true if @current_combo_skill.nil?
     return true if @current_combo_skill.combo_skill == {}

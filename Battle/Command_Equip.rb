@@ -1,9 +1,10 @@
-﻿#==============================================================================
+#==============================================================================
 # 
 # ▼ Yanfly Engine Ace - Command Equip v1.01
-# -- Last Updated: 2012.01.10
+# -- Modified by : Doogy
+# -- Last Updated: 2015.02.17
 # -- Level: Easy, Normal
-# -- Requires: n/a
+# -- Requires: Yanfly Engine Ace - Equip Engine
 # 
 #==============================================================================
 
@@ -48,7 +49,9 @@ module YEA
     # how often they can change equips in battle.
     #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     COMMAND_TEXT   = "Equip"      # Text used for the command.
-    EQUIP_COOLDOWN = 2            # Turns to wait before re-equipping.
+    EQUIP_COOLDOWN = 1            # Turns to wait before re-equipping.
+    EQUIP_SKIPTURN = true         # If true, it will cost a turn to equip.
+    EQUIP_FIXEDSLOT = [2,3,4,5,6]  # list of fixed slots in combat.
     
   end # COMMAND_EQUIP
 end # YEA
@@ -203,19 +206,29 @@ class Scene_Battle < Scene_Base
   # new method: command_equip
   #--------------------------------------------------------------------------
   def command_equip
+    remove = []
+    fixed_slot = YEA::COMMAND_EQUIP::EQUIP_FIXEDSLOT
     Graphics.freeze
     @info_viewport.visible = false
     hide_extra_gauges if $imported["YEA-BattleEngine"]
     SceneManager.snapshot_for_background
     actor = $game_party.battle_members[@status_window.index]
+    for etype_id in fixed_slot
+      if not actor.equip_type_fixed?(etype_id)
+        actor.actor.fixed_equip_type.push(etype_id)
+        remove.push(etype_id)
+      end
+    end
     $game_party.menu_actor = actor
     previous_equips = actor.equips.clone
     index = @actor_command_window.index
     oy = @actor_command_window.oy
     #---
+    
     SceneManager.call(Scene_Equip)
     SceneManager.scene.main
     SceneManager.force_recall(self)
+    
     #---
     show_extra_gauges if $imported["YEA-BattleEngine"]
     actor.set_equip_cooldown if previous_equips != actor.equips
@@ -224,7 +237,11 @@ class Scene_Battle < Scene_Base
     @actor_command_window.setup(actor)
     @actor_command_window.select(index)
     @actor_command_window.oy = oy
+    for etype_id in remove
+        actor.actor.fixed_equip_type.delete(etype_id)
+    end
     perform_transition
+    next_command if YEA::COMMAND_EQUIP::EQUIP_SKIPTURN
   end
   
 end # Scene_Battle

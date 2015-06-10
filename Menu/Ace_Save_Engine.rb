@@ -433,7 +433,8 @@ class Window_FileStatus < Window_Base
       change_color(system_color)
       name = $data_system.variables[variable_id]
       draw_text(dx, dy, dw, line_height, name, 0)
-      value = @header[:variables][variable_id].group
+      value = @header[:variables][variable_id]
+      if value.is_a? Numeric then value = value.group end
       change_color(normal_color)
       draw_text(dx, dy, dw, line_height, value, 2)
       dy += line_height

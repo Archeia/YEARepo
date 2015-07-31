@@ -389,7 +389,7 @@ class Game_Interpreter
   def lock_actor(actor_id)
     return unless YEA::PARTY::ENABLE_MENU
     actor = $game_actors[actor_id]
-    return unless $game_party.battle_members.include?(actor.id)
+    return unless $game_party.battle_members.include?(actor)
     actor.locked = true
   end
   
@@ -399,7 +399,7 @@ class Game_Interpreter
   def unlock_actor(actor_id)
     return unless YEA::PARTY::ENABLE_MENU
     actor = $game_actors[actor_id]
-    return unless $game_party.battle_members.include?(actor.id)
+    return unless $game_party.battle_members.include?(actor)
     actor.locked = false
   end
   

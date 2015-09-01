@@ -1,4 +1,4 @@
-﻿#==============================================================================
+#==============================================================================
 # 
 # ▼ Yanfly Engine Ace - Debug Extension v1.01
 # -- Last Updated: 2012.01.05
@@ -13,6 +13,7 @@ $imported["YEA-DebugExtension"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2015.09.01 - Delayed the generation of the windows until they are needed.
 # 2012.01.05 - Script no longer conflicts with conditional Key presses.
 # 2012.01.04 - Started Script and Finished.
 # 
@@ -1460,12 +1461,6 @@ class Scene_Debug < Scene_MenuBase
     create_command_window
     create_help_window
     create_dummy_window
-    create_switch_window
-    create_variable_window
-    create_teleport_windows
-    create_battle_windows
-    create_common_event_windows
-    create_item_windows
   end
   
   #--------------------------------------------------------------------------
@@ -1518,6 +1513,7 @@ class Scene_Debug < Scene_MenuBase
   # new method: command_switches
   #--------------------------------------------------------------------------
   def command_switches
+    create_switch_window if @switch_window == nil
     @dummy_window.hide
     @switch_window.show
     @switch_window.activate
@@ -1560,6 +1556,7 @@ class Scene_Debug < Scene_MenuBase
   # new method: command_variables
   #--------------------------------------------------------------------------
   def command_variables
+    create_variable_window if @variable_window == nil
     @dummy_window.hide
     @variable_window.show
     @variable_window.activate
@@ -1627,6 +1624,7 @@ class Scene_Debug < Scene_MenuBase
   # new method: command_teleport
   #--------------------------------------------------------------------------
   def command_teleport
+    create_teleport_windows if @teleport_window == nil
     @command_window.hide
     @dummy_window.hide
     @help_window.hide
@@ -1690,6 +1688,7 @@ class Scene_Debug < Scene_MenuBase
   # new method: command_battle
   #--------------------------------------------------------------------------
   def command_battle
+    create_battle_windows if @battle_window == nil
     @dummy_window.hide
     @battle_window.show
     @battle_window.activate
@@ -1732,6 +1731,7 @@ class Scene_Debug < Scene_MenuBase
   # new method: command_common_event
   #--------------------------------------------------------------------------
   def command_common_event
+    create_common_event_windows if @event_window == nil
     @dummy_window.hide
     @event_window.show
     @event_window.activate
@@ -1769,6 +1769,7 @@ class Scene_Debug < Scene_MenuBase
   # new method: command_items
   #--------------------------------------------------------------------------
   def command_items
+    create_item_windows if @item_window == nil
     @dummy_window.hide
     @item_window.show
     @item_window.activate

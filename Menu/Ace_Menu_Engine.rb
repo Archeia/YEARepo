@@ -14,6 +14,7 @@ $imported["YEA-AceMenuEngine"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2016.01.17 - Fixed drawing bug found on the latest update, where the MP bar was drawn behind the HP bar.
 # 2015.01.17 - Display update MP gauge behave the same way as TP gauge (hidden if no skill use it).
 # 2012.01.03 - Compatibility Update: Ace Item Menu
 # 2012.01.01 - Compatibility Update: Kread-EX's Synthesis
@@ -71,7 +72,7 @@ module YEA
     
     # These settings below adjust the visual appearance of the main menu.
     # Change the settings as you see fit.
-    MAIN_MENU_ALIGN = 0          # 0-Left, 1-Middle, 2-Right.
+    MAIN_MENU_ALIGN = 0         # 0-Left, 1-Middle, 2-Right.
     MAIN_MENU_RIGHT = false      # false-Left, true-Right.
     MAIN_MENU_ROWS  = 10         # Maximum number of rows for main menu.
     DRAW_TP_GAUGE   = true       # If true, draws TP in the main menu.
@@ -324,16 +325,16 @@ class Window_Base < Window
     draw_actor_icons(actor, dx, dy + line_height * 2)
     dw = contents.width - dx - 124
     draw_actor_class(actor, dx + 120, dy, dw)
-    draw_actor_hp(actor, dx + 120, dy + line_height * 2, dw)
+    draw_actor_hp(actor, dx + 120, dy + line_height * 1, dw)
     if YEA::MENU::DRAW_TP_GAUGE && actor.draw_tp? && !actor.draw_mp?
-      draw_actor_tp(actor, dx + 120, dy + line_height * 1, dw)
+      draw_actor_tp(actor, dx + 120, dy + line_height * 2, dw)
     elsif YEA::MENU::DRAW_TP_GAUGE && actor.draw_tp? && actor.draw_mp?
       if $imported["YEA-BattleEngine"]
-        draw_actor_tp(actor, dx + 120, dy + line_height * 1, dw/2 + 1)
-        draw_actor_mp(actor, dx + 120 + dw/2, dy + line_height * 2, dw/2)
+        draw_actor_tp(actor, dx + 120, dy + line_height * 2, dw/2 - 1)
+        draw_actor_mp(actor, dx + 120 + dw/2, dy + (line_height * 2), dw/2 + 1)
       else
-        draw_actor_mp(actor, dx + 120, dy + line_height * 1, dw/2 + 1)
-        draw_actor_tp(actor, dx + 120 + dw/2, dy + line_height * 2, dw/2)
+        draw_actor_mp(actor, dx + 120, dy + line_height * 2, dw/2 - 1)
+        draw_actor_tp(actor, dx + 120 + dw/2, dy + line_height * 2, dw/2 + 1)
       end
     elsif YEA::MENU::DRAW_TP_GAUGE && actor.draw_mp?
       draw_actor_mp(actor, dx + 120, dy + line_height * 1, dw)

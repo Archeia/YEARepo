@@ -735,12 +735,12 @@ class Window_Base < Window
   #--------------------------------------------------------------------------
   def draw_current_and_max_values(dx, dy, dw, current, max, color1, color2)
     total = current.group + "/" + max.group
-    if dw < text_size(total).width + text_size(Vocab.hp).width
+    if dw < text_size(total).width + text_size(Vocab.hp_a).width
       change_color(color1)
       draw_text(dx, dy, dw, line_height, current.group, 2)
     else
-      xr = dx + text_size(Vocab.hp).width
-      dw -= text_size(Vocab.hp).width
+      xr = dx + text_size(Vocab.hp_a).width
+      dw -= text_size(Vocab.hp_a).width
       change_color(color2)
       text = "/" + max.group
       draw_text(xr, dy, dw, line_height, text, 2)

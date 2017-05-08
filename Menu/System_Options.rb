@@ -393,7 +393,7 @@ class Game_System
   #--------------------------------------------------------------------------
   # new method: set_volume
   #--------------------------------------------------------------------------
-  def volume_change(type, value)
+  def set_volume(type, value)
     init_volume_control if @volume.nil?
     @volume[type] = [[value, 0].max, 100].min
     case type

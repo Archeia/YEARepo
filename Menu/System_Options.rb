@@ -39,6 +39,12 @@ $imported["YEA-SystemOptions"] = true
 # Unlike the previous Yanfly Engines, this version does not bind volume to a
 # variable. Use the script call to change the bgm, bgs, or sfx sound rate by
 # x increment. Use a negative value to lower the volume.
+#
+# $game_system.set_volume(:bgm, x)
+# $game_system.set_volume(:bgs, x)
+# $game_system.set_volume(:sfx, x)
+# Use this script call to set the bgm, bgs, or sfx volume directly. (x should
+# be between 0 and 100.)
 # 
 # $game_system.set_autodash(true)
 # $game_system.set_autodash(false)
@@ -383,14 +389,26 @@ class Game_System
     init_volume_control if @volume.nil?
     return [[@volume[type], 0].max, 100].min
   end
+
+  #--------------------------------------------------------------------------
+  # new method: set_volume
+  #--------------------------------------------------------------------------
+  def set_volume(type, value)
+    init_volume_control if @volume.nil?
+    @volume[type] = [[value, 0].max, 100].min
+    case type
+    when :bgm
+      RPG::BGM::last.play
+    when :bgs
+      RPG::BGS::last.play
+    end
+  end
   
   #--------------------------------------------------------------------------
   # new method: volume_change
   #--------------------------------------------------------------------------
   def volume_change(type, increment)
-    init_volume_control if @volume.nil?
-    @volume[type] += increment
-    @volume[type] = [[@volume[type], 0].max, 100].min
+    set_volume(type, @volume[type] + increment)
   end
   
   #--------------------------------------------------------------------------
@@ -815,7 +833,7 @@ class Window_SystemOptions < Window_Command
   end
   
   #--------------------------------------------------------------------------
-  # change_window_tone
+  # change_volume
   #--------------------------------------------------------------------------
   def change_volume(direction)
     Sound.play_cursor
@@ -824,10 +842,8 @@ class Window_SystemOptions < Window_Command
     case current_symbol
     when :volume_bgm
       $game_system.volume_change(:bgm, value)
-      RPG::BGM::last.play
     when :volume_bgs
       $game_system.volume_change(:bgs, value)
-      RPG::BGS::last.play
     when :volume_sfx
       $game_system.volume_change(:sfx, value)
     end

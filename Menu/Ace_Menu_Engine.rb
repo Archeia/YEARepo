@@ -329,7 +329,7 @@ class Window_Base < Window
     dw = contents.width - dx - 124
     draw_actor_class(actor, dx + 120, dy, dw)
     draw_actor_hp(actor, dx + 120, dy + line_height * 1, dw)
-    if YEA::MENU::DRAW_TP_GAUGE && actor.draw_tp? && !actor.draw_mp?
+    if YEA::MENU::DRAW_TP_GAUGE && actor.draw_tp? && (!actor.draw_mp? || !YEA::MENU::DRAW_MP_GAUGE)
       draw_actor_tp(actor, dx + 120, dy + line_height * 2, dw)
     elsif YEA::MENU::DRAW_TP_GAUGE && YEA::MENU::DRAW_MP_GAUGE && actor.draw_tp? && actor.draw_mp?
       if $imported["YEA-BattleEngine"]

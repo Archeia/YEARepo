@@ -1,8 +1,8 @@
 #==============================================================================
 # 
-# ▼ Yanfly Engine Ace - Ace Menu Engine v1.08
-# -- Modified by: Doogy 
-# -- Last Updated: 2012.01.03
+# ▼ Yanfly Engine Ace - Ace Menu Engine v1.09
+# -- Modified by: Doogy, The_Fireplace 
+# -- Last Updated: 2018.01.25
 # -- Level: Normal, Hard
 # -- Requires: n/a
 # 

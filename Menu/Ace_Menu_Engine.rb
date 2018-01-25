@@ -14,6 +14,7 @@ $imported["YEA-AceMenuEngine"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2018.01.25 - Fixed drawing bug where the HP bar was drawn over the MP bar
 # 2016.01.17 - Fixed drawing bug found on the latest update, where the MP bar was drawn behind the HP bar.
 # 2015.01.17 - Display update MP gauge behave the same way as TP gauge (hidden if no skill use it).
 # 2012.01.03 - Compatibility Update: Ace Item Menu

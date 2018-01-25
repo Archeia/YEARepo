@@ -337,7 +337,7 @@ class Window_Base < Window
         draw_actor_tp(actor, dx + 120 + dw/2, dy + line_height * 2, dw/2 + 1)
       end
     elsif YEA::MENU::DRAW_TP_GAUGE && actor.draw_mp?
-      draw_actor_mp(actor, dx + 120, dy + line_height * 1, dw)
+      draw_actor_mp(actor, dx + 120, dy + line_height * 2, dw)
     end
     
   end

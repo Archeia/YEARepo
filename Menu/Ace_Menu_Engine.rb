@@ -1,6 +1,6 @@
 #==============================================================================
 # 
-# ▼ Yanfly Engine Ace - Ace Menu Engine v1.09
+# ▼ Yanfly Engine Ace - Ace Menu Engine v1.10
 # -- Modified by: Doogy, The_Fireplace, rstp14 
 # -- Last Updated: 2018.02.27
 # -- Level: Normal, Hard
@@ -14,7 +14,7 @@ $imported["YEA-AceMenuEngine"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-# 2018.02.27 - Compatibility Update: JP Manager
+# 2018.02.27 - Made it possible to draw the JP bar
 # 2018.01.25 - Fixed drawing bug where the HP bar was drawn over the MP bar
 #            - Made it possible to draw the MP bar if the TP bar is disabled
 # 2016.01.17 - Fixed drawing bug found on the latest update, where the MP bar was drawn behind the HP bar.

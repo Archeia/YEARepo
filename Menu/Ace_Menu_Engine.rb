@@ -1,8 +1,8 @@
 #==============================================================================
 # 
 # ▼ Yanfly Engine Ace - Ace Menu Engine v1.09
-# -- Modified by: Doogy, The_Fireplace 
-# -- Last Updated: 2018.01.25
+# -- Modified by: Doogy, The_Fireplace, rstp14 
+# -- Last Updated: 2018.02.27
 # -- Level: Normal, Hard
 # -- Requires: n/a
 # 
@@ -14,6 +14,7 @@ $imported["YEA-AceMenuEngine"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2018.02.27 - Compatibility Update: JP Manager
 # 2018.01.25 - Fixed drawing bug where the HP bar was drawn over the MP bar
 #            - Made it possible to draw the MP bar if the TP bar is disabled
 # 2016.01.17 - Fixed drawing bug found on the latest update, where the MP bar was drawn behind the HP bar.
@@ -342,6 +343,8 @@ class Window_Base < Window
     elsif YEA::MENU::DRAW_MP_GAUGE && actor.draw_mp?
       draw_actor_mp(actor, dx + 120, dy + line_height * 2, dw)
     end
+    return unless $imported["YEA-JPManager"]
+    draw_actor_jp(actor, dx + 120, dy, dw)
     
   end
   

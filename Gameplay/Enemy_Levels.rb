@@ -490,8 +490,8 @@ class Game_Enemy < Game_Battler
   alias game_enemy_exp_elv exp
   def exp
     base = game_enemy_exp_elv
-    per = enemy.level_growth[8][1]
-    set = enemy.level_growth[8][2]
+    per = enemy.level_growth[9][1]
+    set = enemy.level_growth[9][2]
     total = eval(YEA::ENEMY_LEVEL::STAT_FORMULA)
     return total.to_i
   end
@@ -502,8 +502,8 @@ class Game_Enemy < Game_Battler
   alias game_enemy_gold_elv gold
   def gold
     base = game_enemy_gold_elv
-    per = enemy.level_growth[9][1]
-    set = enemy.level_growth[9][2]
+    per = enemy.level_growth[8][1]
+    set = enemy.level_growth[8][2]
     total = eval(YEA::ENEMY_LEVEL::STAT_FORMULA)
     return total.to_i
   end

@@ -1,7 +1,7 @@
 ﻿#==============================================================================
 # 
 # ▼ Yanfly Engine Ace - Ace Equip Engine v1.06
-# -- Last Updated: 2014.05.01
+# -- Last Updated: 2020.06.10
 # -- Level: Normal, Hard
 # -- Requires: n/a
 # 
@@ -13,6 +13,7 @@ $imported["YEA-AceEquipEngine"] = true
 #==============================================================================
 # ▼ Updates
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# 2020.06.10 - Bug Fixed: Weird slot list when changing class/character with different slot.
 # 2014.05.01 - Bug Fixed: Refresh Equip Item List when change slot.
 # 2012.02.02 - Bug Fixed: Crash when changing classes to different equip slots.
 # 2012.01.22 - Bug Fixed: <equip slot> notetags updated to factor in spaces.
@@ -434,7 +435,6 @@ class RPG::BaseItem
           case line.upcase
           when /EQUIP TYPE[ ](\d+)/i, /EQUIP TYPE:[ ](\d+)/i
             id = $1.to_i
-            @base_equip_slots.push(id) if [0,1,2,3,4].include?(id)
             @base_equip_slots.push(id) if YEA::EQUIP::TYPES.include?(id)
           when /WEAPON/i
             @base_equip_slots.push(0)
